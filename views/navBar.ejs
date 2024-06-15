@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="icon" href="img/logo.jpg" type="image/jpg" />
+</head>
+<body>
+  <nav class="navBar">
+    <a class="navLogoLink" id="navLogoLink" href="/inputimage">
+      <img src="images/logo.png" class="nav-logo" alt="navLogo" />
+    </a>
+
+    <div class="navMenu">
+      <a class="navLink" href="/inputimage">Camera</a>
+      <a class="navLink" href="/savedMovies">Saved Movies</a>
+    </div>
+
+    <div class="navBtn">
+      <a class="navBtnLink" href="/login">Log Out</a>
+    </div>
+  </nav>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Get the current URL path
+      var path = window.location.pathname;
+
+      // Find the corresponding link and add the 'active' class
+      var links = document.querySelectorAll(".navLink");
+      for (var i = 0; i < links.length; i++) {
+        var linkPath = links[i].getAttribute("href");
+        if (path === linkPath) {
+          links[i].classList.add("active");
+        }
+      }
+    });
+  </script>
+</body>
+</html>

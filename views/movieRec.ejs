@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Recommendation</title>
+    <link rel="stylesheet" href="css/movieRec.css" />
+    <link rel="icon" href="images/logo.png" type="image/png" />
+    <style>
+      .items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px; /* Adjust the gap as needed */
+      }
+      .item-ins {
+        flex: 1 1 calc(20% - 20px); /* Adjust the width and gap as needed */
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('navBar.ejs') %>
+    <div class="bg">
+      <br />
+      <img src="images/logo.png" alt="logo Image" id="logo-image" />
+      <div class="heading-text"><b>MOOD FLIX</b></div>
+      <div class="text2">
+        <br />
+        We've curated a selection of movies just for you, guaranteed to keep
+        your smiles flowing
+      </div>
+      <div class="search-margin">
+        <input
+          type="text"
+          class="instructor-search"
+          id="search"
+          placeholder="Search"
+        />
+      </div>
+      <br />
+      <section class="container content-section">
+        <div class="items">
+          <form id="ratingForm" method="POST" action="">
+            <% let i = 0; %> <% dbRecordList.forEach(movieArray => { %> <%
+            movieArray.forEach(movie => { %>
+            <div class="item-ins">
+              <img
+                class="item-image-ins"
+                src="<%= movie.posterLink %>"
+                alt=""
+              />
+              <span class="item-title"><%= movie.title %></span>
+              <div class="item-details">
+                <p>
+                  <strong>Overview:</strong>
+                  <br />
+                  <br />
+                  <%= movie.overview %>
+                  <br />
+                  <br />
+                  Rating: <%= movie.imdbRating %>
+                </p>
+                <input
+                  type="hidden"
+                  name="movieId"
+                  value="<%= movie.movieId %>"
+                />
+                <div class="star-rating">
+                  <div class="ratingA">
+                    <input
+                      type="radio"
+                      name="rating_<%= movie.movieId %>"
+                      id="<%= movie.movieId %>-5"
+                      value="5"
+                      class="rating_num"
+                    />
+                    <label for="<%= movie.movieId %>-5"></label>
+                    <input
+                      type="radio"
+                      name="rating_<%= movie.movieId %>"
+                      id="<%= movie.movieId %>-4"
+                      value="4"
+                      class="rating_num"
+                    />
+                    <label for="<%= movie.movieId %>-4"></label>
+                    <input
+                      type="radio"
+                      name="rating_<%= movie.movieId %>"
+                      id="<%= movie.movieId %>-3"
+                      value="3"
+                      class="rating_num"
+                    />
+                    <label for="<%= movie.movieId %>-3"></label>
+                    <input
+                      type="radio"
+                      name="rating_<%= movie.movieId %>"
+                      id="<%= movie.movieId %>-2"
+                      value="2"
+                      class="rating_num"
+                    />
+                    <label for="<%= movie.movieId %>-2"></label>
+                    <input
+                      type="radio"
+                      name="rating_<%= movie.movieId %>"
+                      id="<%= movie.movieId %>-1"
+                      value="1"
+                      class="rating_num"
+                    />
+                    <label for="<%= movie.movieId %>-1"></label>
+                    <h6 class="rating_num"></h6>
+                    <br />
+                    <br />
+                    <br />
+                  </div>
+                  <br />
+                  <div class="button-container">
+                    <input class="save-btn" name="saveForLater_<%= movie.movieId %>" type="checkbox" value="<%= movie.movieId %>" />
+                   <label class="save">Save for Later</label>   
+                   <br/>
+                   <br/>
+                  </div>
+                </div>
+                <p class="error-msg" style="display: none; color: red"></p>
+              </div>
+            </div>
+            <% i++; %> <% if (i % 5 === 0) { %>
+            <!-- Add a clearing div after every 5 items -->
+            <div style="clear: both"></div>
+            <% } %> <% }); %> <% }); %>
+            <div class="button-container">
+              <button id="next" type="submit">Submit All Ratings</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+    <br />
+    <script>
+      function filterItems() {
+        var searchInput = document.getElementById("search").value.toLowerCase();
+        var items = document.querySelectorAll(".item-ins");
+
+        items.forEach(function (item) {
+          var title = item.querySelector(".item-title").innerText.toLowerCase();
+
+          if (title.includes(searchInput)) {
+            item.style.display = "block";
+          } else {
+            item.style.display = "none";
+          }
+        });
+      }
+
+      // Add event listener for search input
+      document.getElementById("search").addEventListener("input", filterItems);
+
+    </script>
+  </body>
+</html>

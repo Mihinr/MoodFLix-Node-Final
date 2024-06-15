@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emotion Detection</title>
+    <link rel="stylesheet" href="css/inputimage.css" />
+    <link rel="icon" href="images/logo.png" type="image/png" />
+  </head>
+  <body>
+    <%- include('navBar.ejs') %>
+    <div class="bg">
+      <img src="images/logo.png" alt="logo Image" id="logo-image" />
+      <div class="heading-text">Lights, Camera, Action!</div>
+      <div class="text2">Welcome to your personalized movie haven</div>
+      <br />
+      <br />
+      <div class="container">
+        <br />
+        <br />
+        <div class="text3">
+          Spill the beans! Share your face, we won't judge, just recommend
+        </div>
+        <br />
+        <img src="images/camera.png" alt="Front Image" id="front-image" />
+        <video
+          id="video"
+          width="320"
+          height="260"
+          muted
+          autoplay
+          style="display: none"
+        ></video>
+        <!-- Initially hidden -->
+        <form id="image-form" method="POST" enctype="multipart/form-data">
+          <input
+            type="hidden"
+            id="prediction-input"
+            name="prediction"
+            value=""
+          />
+          <button id="open-camera" type="button">Open Camera</button>
+          <button id="capture-image" type="button">Capture Image</button>
+          <br />
+          <input type="file" id="upload-image" accept="image/*" />
+          <br />
+          <button id="upload-button" type="button">Upload Image</button>
+        </form>
+        <form id="image-form1" method="POST">
+          <div class="button-container">
+            <button id="next" type="submit">Next</button>
+          </div>
+        </form>
+        <p id="emotion-display"></p>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const video = document.getElementById("video");
+        const openCameraBtn = document.getElementById("open-camera");
+        const captureImageBtn = document.getElementById("capture-image");
+        const uploadImageBtn = document.getElementById("upload-button");
+        const uploadInput = document.getElementById("upload-image");
+        const emotionDisplay = document.getElementById("emotion-display");
+        const frontImage = document.getElementById("front-image");
+
+        let stream;
+
+        openCameraBtn.addEventListener("click", async () => {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.play();
+            frontImage.style.display = "none";
+            video.style.display = "block";
+          } catch (error) {
+            console.error("Error accessing camera:", error);
+          }
+        });
+
+        const processImage = async (blob) => {
+          const formData = new FormData();
+          formData.append("image", blob);
+
+          try {
+            const response = await fetch("/predict/emotion", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to predict emotion");
+            }
+
+            const data = await response.json();
+            if (data.success) {
+              console.log(data.data);
+              emotionDisplay.textContent = `Predicted Emotion: ${data.data}`;
+              sendPredictionToBackend(data.data);
+            } else {
+              throw new Error("Failed to predict emotion");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            emotionDisplay.textContent =
+              "Failed to predict emotion. Please try again later.";
+            if (error.response) {
+              console.error("Server Response:", error.response);
+            }
+          }
+        };
+
+        captureImageBtn.addEventListener("click", () => {
+          if (stream) {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob((blob) => {
+              processImage(blob);
+            }, "image/jpeg");
+
+            // Hide the video and display the front image
+            video.style.display = "none";
+            frontImage.style.display = "block";
+          } else {
+            console.error("Camera stream not available.");
+          }
+        });
+
+        uploadImageBtn.addEventListener("click", () => {
+          const file = uploadInput.files[0];
+          if (file) {
+            processImage(file);
+          } else {
+            console.error("No file selected.");
+          }
+        });
+      });
+
+      function sendPredictionToBackend(prediction) {
+        fetch("/input", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prediction }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Handle response from backend
+          })
+          .catch((error) => {
+            console.error("Error sending prediction:", error);
+          });
+      }
+    </script>
+  </body>
+</html>
