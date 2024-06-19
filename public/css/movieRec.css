@@ -10,6 +10,7 @@ html {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  
 }
 /* 
   body {
@@ -314,9 +315,12 @@ p {
   background-color: green; /* Grey background */
   color: white; /* Black text */
   border: none; /* Remove border */
-  padding: 10px 20px; /* Padding inside buttons */
+  padding: 15px 30px; /* Padding inside buttons */
+  font-size: 20px;
   font-weight: bold; /* Optional: bold text */
   cursor: pointer; /* Change cursor to pointer on hover */
+  border-radius: 10px;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 .save {

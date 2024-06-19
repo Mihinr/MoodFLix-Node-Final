@@ -1,91 +1,142 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Saved Movies</title>
-    <link rel="stylesheet" href="css/movieRec.css" />
-    <link rel="icon" href="images/logo.png" type="image/png" />
-    <style>
-        .items {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 20px; /* Adjust the gap as needed */
-        }
-        .item-ins {
-          flex: 1 1 calc(20% - 20px); /* Adjust the width and gap as needed */
-          box-sizing: border-box;
-        }
-      </style>
-  </head>
-  <body>
-    <%- include('navBar.ejs') %>
-    <div class="bg">
-      <br />
-      <img src="images/logo.png" alt="logo Image" id="logo-image" />
-      <div class="heading-text"><b>MOOD FLIX</b></div>
-      <div class="text2">
-        <br />
-        We've curated a selection of movies just for you, guaranteed to keep
-        your smiles flowing
-      </div>
-      <div class="search-margin">
-        <input
-          type="text"
-          class="instructor-search"
-          id="search"
-          placeholder="Search"
-        />
-      </div>
-      <br />
-      <section class="container content-section">
-        <div class="items">
-          <form id="ratingForm" method="POST" action="">
-            <% dbRecordList.forEach(function(movie) { %>
-            <div class="item-ins">
-              <img
-                class="item-image-ins"
-                src="<%= movie.posterLink %>"
-                alt=""
-              />
-              <span class="item-title"><%= movie.title %></span>
-              <div class="item-details">
-                <p>
-                  <strong>Overview:</strong>
-                  <br />
-                  <br />
-                  <%= movie.description %>
-                  <br />
-                  <br />
-                  Rating: <%= movie.imdbRating %>
-                </p>
-                <p class="error-msg" style="display: none; color: red"></p>
-              </div>
-            </div>
-            <% }); %>
-          </form>
-        </div>
-      </section>
-    </div>
-  </body>
-  <script>
-    function filterItems() {
-      var searchInput = document.getElementById("search").value.toLowerCase();
-      var items = document.querySelectorAll(".item-ins");
-
-      items.forEach(function (item) {
-        var title = item.querySelector(".item-title").innerText.toLowerCase();
-
-        if (title.includes(searchInput)) {
-          item.style.display = "block";
-        } else {
-          item.style.display = "none";
-        }
-      });
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saved Movies</title>
+  <link rel="stylesheet" href="css/movieRec.css" />
+  <link rel="icon" href="images/logo.png" type="image/png" />
+  <style>
+    .items {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
     }
+    .item-ins {
+      flex: 1 1 calc(20% - 20px);
+      max-width: calc(20% - 20px);
+      box-sizing: border-box;
+    }
+    .clear {
+      flex-basis: 100%;
+      height: 0;
+    }
+  </style>
+</head>
+<body>
+  <%- include('navBar.ejs') %>
+  <div class="bg">
+    <br />
+    <img src="images/logo.png" alt="logo Image" id="logo-image" />
+    <div class="heading-text"><b>MOOD FLIX</b></div>
+    <div class="text2">
+      <br />
+      We've curated a selection of movies just for you, guaranteed to keep
+      your smiles flowing
+    </div>
+    <div class="search-margin">
+      <input
+        type="text"
+        class="instructor-search"
+        id="search"
+        placeholder="Search"
+      />
+    </div>
+    <br />
+    <section class="container content-section">
+      <div class="items">
+        <% let i = 0; %>
+        <% dbRecordList.forEach(function(movie) { %>
+        <div class="item-ins" data-movie-id="<%= movie.movieId %>">
+          <img
+            class="item-image-ins"
+            src="<%= movie.posterLink %>"
+            alt=""
+          />
+          <span class="item-title"><%= movie.title %></span>
+          <div class="item-details">
+            <p>
+              <strong>Overview:</strong>
+              <br />
+              <br />
+              <%= movie.description %>
+              <br />
+              <br />
+              Rating: <%= movie.imdbRating %>
+            </p>
+            <form class="delete-form" method="POST" action="/savedMovies">
+              <button id="next" type="submit">Remove</button>
+            </form>
+            <p class="error-msg" style="display: none; color: red"></p>
+          </div>
+        </div>
+        <% i++; %>
+        <% if (i % 5 === 0) { %>
+        <div class="clear"></div>
+        <% } %>
+        <% }); %>
+      </div>
+    </section>
+  </div>
+</body>
+<script>
+  function filterItems() {
+    var searchInput = document.getElementById("search").value.toLowerCase();
+    var items = document.querySelectorAll(".item-ins");
 
-    // Add event listener for search input
-    document.getElementById("search").addEventListener("input", filterItems);
-  </script>
+    items.forEach(function (item) {
+      var title = item.querySelector(".item-title").innerText.toLowerCase();
+
+      if (title.includes(searchInput)) {
+        item.style.display = "block";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  }
+
+  document.getElementById("search").addEventListener("input", filterItems);
+
+  function deleteMovie(event, movieId) {
+    event.preventDefault();
+    console.log("Deleting movie with ID:", movieId);
+
+    fetch('/savedMovies', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ movieId: movieId }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => { throw new Error(err.message); });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          console.log("Movie deleted successfully");
+          // Remove the movie item from the DOM
+          event.target.closest('.item-ins').remove();
+        } else {
+          console.error('Error:', data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var forms = document.querySelectorAll(".delete-form");
+    forms.forEach(function(form) {
+      form.addEventListener("submit", function(event) {
+        var movieId = form.closest(".item-ins").getAttribute("data-movie-id");
+        deleteMovie(event, movieId);
+      });
+    });
+  });
+</script>
 </html>

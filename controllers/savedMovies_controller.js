@@ -36,6 +36,7 @@ exports.savedMovies = (req, res) => {
                     if (movieResult.length > 0) {
                       let movie = movieResult[0];
                       let dbRecord = {
+                        movieId: movie.movieId,
                         posterLink: movie.posterLink,
                         title: movie.title,
                         description: movie.overview,
@@ -69,6 +70,41 @@ exports.savedMovies = (req, res) => {
           res.render("savedMovies", { dbRecordList: [] });
         }
       }
+    }
+  );
+};
+
+exports.savedMoviesPost = (req, res) => {
+  if (!req.session || !req.session.userid) {
+    return res.status(401).json({ success: false, message: "Unauthorized access" });
+  }
+
+  var userId = req.session.userid;
+  var movieId = req.body.movieId;
+
+  if (!movieId) {
+    return res.status(400).json({ success: false, message: "Movie ID is required" });
+  }
+
+  const connection = db.getMySQLConnection();
+
+  if (!connection) {
+    return res.status(500).json({ success: false, message: "Database connection failed" });
+  }
+
+  connection.connect();
+
+  connection.query(
+    "DELETE FROM SavedMovies WHERE movieId = ? AND userId = ?",
+    [movieId, userId],
+    (err, result) => {
+      connection.end();
+
+      if (err) {
+        return res.status(500).json({ success: false, message: err.message });
+      }
+
+      return res.status(200).json({ success: true, message: "Movie deleted successfully" });
     }
   );
 };

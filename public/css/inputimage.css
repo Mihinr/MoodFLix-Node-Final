@@ -94,7 +94,7 @@ body {
   width: calc(100% - 20px); /* Adjust width to fit the container */
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 10px;
   box-sizing: border-box;
 }
 
@@ -109,6 +109,7 @@ body {
   padding: 10px 20px;
   font-weight: bold;
   cursor: pointer;
+  border-radius: 10px;
 }
 
 #upload-button {
@@ -120,4 +121,5 @@ body {
   padding: 10px 20px;
   font-weight: bold;
   cursor: pointer;
+  border-radius: 10px;
 }

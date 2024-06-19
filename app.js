@@ -95,6 +95,7 @@ app.get("/movieRec", movieRecRouter);
 app.post("/movieRec", movieRecRouter);
 
 app.get("/savedMovies", savedMoviesRouter);
+app.post("/savedMovies", savedMoviesRouter);
 
 app.get("/thankyou", movieRecRouter);
 

@@ -114,6 +114,7 @@ exports.movieRecPost = (req, res) => {
   }
 
   connection.end();
+  req.session.prediction = null;
   return res.redirect("/thankyou");
 };
 
