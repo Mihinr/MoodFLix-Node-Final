@@ -97,7 +97,7 @@ exports.savedMoviesPost = (req, res) => {
   connection.query(
     "DELETE FROM SavedMovies WHERE movieId = ? AND userId = ?",
     [movieId, userId],
-    (err, result) => {
+    (err) => {
       connection.end();
 
       if (err) {
